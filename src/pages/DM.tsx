@@ -37,9 +37,9 @@ export default function DM() {
     const fetch = async () => {
       const { data } = await supabase
         .from('dm_conversations')
-        .select('*, p1:participant_one(id, username, display_name, avatar_url), p2:participant_two(id, username, display_name, avatar_url)')
+        .select('*, p1:profiles!dm_conversations_participant_one_fkey(id, username, display_name, avatar_url), p2:profiles!dm_conversations_participant_two_fkey(id, username, display_name, avatar_url)')
         .or(`participant_one.eq.${user.id},participant_two.eq.${user.id}`)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as any;
 
       const withLastMsg = await Promise.all((data || []).map(async (c: any) => {
         const other = c.p1.id === user.id ? c.p2 : c.p1;
@@ -57,7 +57,7 @@ export default function DM() {
     if (!conversationId || !user) return;
     setLoadingMessages(true);
     const fetch = async () => {
-      const { data: convo } = await supabase.from('dm_conversations').select('*, p1:participant_one(id, username, display_name, avatar_url), p2:participant_two(id, username, display_name, avatar_url)').eq('id', conversationId).single();
+      const { data: convo } = await supabase.from('dm_conversations').select('*, p1:profiles!dm_conversations_participant_one_fkey(id, username, display_name, avatar_url), p2:profiles!dm_conversations_participant_two_fkey(id, username, display_name, avatar_url)').eq('id', conversationId).single() as any;
       if (convo) {
         const other = convo.p1.id === user.id ? convo.p2 : convo.p1;
         setOtherProfile(other);
