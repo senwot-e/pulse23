@@ -77,37 +77,57 @@ export default function AI() {
 
     try {
       const apiMessages = updatedMessages.map(m => ({ role: m.role, content: m.content }));
-      const { data, error } = await supabase.functions.invoke('ai-chat', {
-        body: { messages: apiMessages },
+      
+      const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ messages: apiMessages }),
       });
 
-      if (error) throw error;
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.error || `Request failed (${resp.status})`);
+      }
 
-      // The response might be streamed or not. Handle both cases.
       let assistantContent = '';
-      if (typeof data === 'string') {
-        // Try to parse SSE
-        const lines = data.split('\n');
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const jsonStr = line.slice(6);
-            if (jsonStr === '[DONE]') break;
+      
+      if (resp.headers.get('content-type')?.includes('text/event-stream') && resp.body) {
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let textBuffer = '';
+        let streamDone = false;
+
+        while (!streamDone) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          textBuffer += decoder.decode(value, { stream: true });
+
+          let newlineIndex: number;
+          while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+            let line = textBuffer.slice(0, newlineIndex);
+            textBuffer = textBuffer.slice(newlineIndex + 1);
+            if (line.endsWith('\r')) line = line.slice(0, -1);
+            if (line.startsWith(':') || line.trim() === '') continue;
+            if (!line.startsWith('data: ')) continue;
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === '[DONE]') { streamDone = true; break; }
             try {
               const parsed = JSON.parse(jsonStr);
-              if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
-                assistantContent += parsed.delta.text;
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                assistantContent += content;
                 setStreamingText(assistantContent);
               }
-            } catch { /* skip */ }
+            } catch { /* partial JSON, skip */ }
           }
         }
-      } else if (data?.content) {
-        // Non-streamed response
-        assistantContent = typeof data.content === 'string' ? data.content : data.content[0]?.text || '';
-        setStreamingText(assistantContent);
-      } else if (data) {
-        // Try raw text
-        assistantContent = JSON.stringify(data);
+      } else {
+        const data = await resp.json();
+        assistantContent = data.choices?.[0]?.message?.content || JSON.stringify(data);
       }
 
       if (!assistantContent) assistantContent = 'Sorry, I could not generate a response.';
