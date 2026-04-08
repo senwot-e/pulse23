@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_events: {
+        Row: {
+          active_until: string
+          config: Json
+          created_at: string | null
+          created_by: string
+          id: string
+          type: string
+        }
+        Insert: {
+          active_until: string
+          config?: Json
+          created_at?: string | null
+          created_by: string
+          id?: string
+          type: string
+        }
+        Update: {
+          active_until?: string
+          config?: Json
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          type?: string
+        }
+        Relationships: []
+      }
       ai_conversations: {
         Row: {
           created_at: string | null
@@ -74,6 +101,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      badges: {
+        Row: {
+          color: string
+          created_at: string | null
+          created_by: string
+          detail: string | null
+          id: string
+          image_url: string | null
+          name: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string | null
+          created_by: string
+          detail?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+        }
+        Update: {
+          color?: string
+          created_at?: string | null
+          created_by?: string
+          detail?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+        }
+        Relationships: []
       }
       bookmarks: {
         Row: {
@@ -430,6 +487,7 @@ export type Database = {
           created_at: string | null
           display_name: string | null
           id: string
+          pulse_count: number
           username: string
         }
         Insert: {
@@ -438,6 +496,7 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           id: string
+          pulse_count?: number
           username: string
         }
         Update: {
@@ -446,9 +505,42 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           id?: string
+          pulse_count?: number
           username?: string
         }
         Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          created_at: string | null
+          granted_by: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          created_at?: string | null
+          granted_by: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          created_at?: string | null
+          granted_by?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
