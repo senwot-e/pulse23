@@ -5,8 +5,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import SocialPostCard, { PostData } from '@/components/SocialPostCard';
 import CommentSection from '@/components/CommentSection';
 import { ProfileSkeleton, PostSkeleton } from '@/components/Skeletons';
-import { Loader2, Edit2 } from 'lucide-react';
+import { Loader2, Edit2, Zap } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+interface Badge {
+  id: string;
+  name: string;
+  image_url: string | null;
+  detail: string | null;
+  color: string;
+}
 
 function getAvatar(username: string, url?: string | null) {
   return url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`;
