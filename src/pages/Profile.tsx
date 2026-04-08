@@ -37,6 +37,7 @@ export default function Profile() {
   const [editBio, setEditBio] = useState('');
   const [saving, setSaving] = useState(false);
   const [likes, setLikes] = useState<Set<string>>(new Set());
+  const [badges, setBadges] = useState<Badge[]>([]);
 
   const isOwn = user?.id === profile?.id;
 
