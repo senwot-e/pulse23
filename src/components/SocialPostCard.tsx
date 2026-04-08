@@ -1,6 +1,14 @@
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Trash2 } from 'lucide-react';
+import {
+  Heart,
+  MessageCircle,
+  Share2,
+  Bookmark,
+  MoreHorizontal,
+  Trash2,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -29,18 +37,41 @@ interface PostCardProps {
   isBookmarked?: boolean;
   onDelete?: (id: string) => void;
   onCommentClick?: (postId: string) => void;
+  trollMessage?: string | null;
 }
 
 function getAvatar(username: string, avatarUrl?: string | null) {
   return avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`;
 }
 
-export default function SocialPostCard({ post, isLiked: initialLiked = false, isBookmarked: initialBookmarked = false, onDelete, onCommentClick }: PostCardProps) {
+interface Badge {
+  id: string;
+  name: string;
+  image_url: string | null;
+  detail: string | null;
+  color: string;
+}
+
+export default function SocialPostCard({ post, isLiked: initialLiked = false, isBookmarked: initialBookmarked = false, onDelete, onCommentClick, trollMessage }: PostCardProps) {
   const { user } = useAuth();
   const [liked, setLiked] = useState(initialLiked);
   const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const [likesCount, setLikesCount] = useState(post.likes_count);
   const [showMenu, setShowMenu] = useState(false);
+  const [badges, setBadges] = useState<Badge[]>([]);
+
+  useEffect(() => {
+    const fetchBadges = async () => {
+      const { data } = await supabase
+        .from('user_badges')
+        .select('badge_id, badges(id, name, image_url, detail, color)')
+        .eq('user_id', post.user_id);
+      if (data) {
+        setBadges(data.map((ub: any) => ub.badges).filter(Boolean));
+      }
+    };
+    fetchBadges();
+  }, [post.user_id]);
 
   const handleLike = async () => {
     if (!user) { toast.error('Sign in to like posts'); return; }
@@ -90,62 +121,114 @@ export default function SocialPostCard({ post, isLiked: initialLiked = false, is
     } catch { toast.error('Failed to delete'); }
   };
 
+  const displayContent = trollMessage || post.content;
+
   return (
-    <div className="bg-card rounded-lg border p-4 mb-3 transition hover:shadow-sm">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <Link to={`/profile/${post.profiles.username}`}>
-            <img src={getAvatar(post.profiles.username, post.profiles.avatar_url)} alt="" className="w-10 h-10 rounded-full object-cover" />
-          </Link>
-          <div>
-            <Link to={`/profile/${post.profiles.username}`} className="font-heading font-semibold text-foreground hover:underline">
-              {post.profiles.display_name || post.profiles.username}
+    <div className={cn(
+      "bg-card rounded-xl border shadow-sm mb-3 overflow-hidden transition-all duration-200 hover:shadow-md",
+      trollMessage && "border-destructive/30"
+    )}>
+      <div className="p-4">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <Link to={`/profile/${post.profiles.username}`}>
+              <img
+                src={getAvatar(post.profiles.username, post.profiles.avatar_url)}
+                alt=""
+                className="w-10 h-10 rounded-full object-cover ring-2 ring-border"
+              />
             </Link>
-            <p className="text-sm text-muted-foreground">
-              @{post.profiles.username} · {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-            </p>
+            <div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <Link to={`/profile/${post.profiles.username}`} className="font-heading font-semibold text-foreground hover:underline text-sm">
+                  {post.profiles.display_name || post.profiles.username}
+                </Link>
+                {badges.map(badge => (
+                  <span
+                    key={badge.id}
+                    title={badge.detail || badge.name}
+                    className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white"
+                    style={{ backgroundColor: badge.color }}
+                  >
+                    {badge.image_url && <img src={badge.image_url} alt="" className="w-3 h-3 rounded-full" />}
+                    {badge.name}
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                @{post.profiles.username} · {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+              </p>
+            </div>
           </div>
-        </div>
-        {user?.id === post.user_id && (
-          <div className="relative">
-            <button onClick={() => setShowMenu(v => !v)} className="p-1 rounded hover:bg-secondary transition">
-              <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => onCommentClick ? undefined : handleBookmark()}
+              className={cn(
+                "p-1.5 rounded-full transition-colors",
+                bookmarked ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Bookmark className={cn("w-4 h-4", bookmarked && "fill-current")} />
             </button>
-            {showMenu && (
-              <div className="absolute right-0 top-8 bg-card border rounded-lg shadow-lg z-10 py-1 min-w-[120px]">
-                <button onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-secondary w-full">
-                  <Trash2 className="w-4 h-4" /> Delete
+            {user?.id === post.user_id && (
+              <div className="relative">
+                <button onClick={() => setShowMenu(v => !v)} className="p-1.5 rounded-full hover:bg-secondary transition text-muted-foreground">
+                  <MoreHorizontal className="w-4 h-4" />
                 </button>
+                {showMenu && (
+                  <div className="absolute right-0 top-8 bg-card border rounded-lg shadow-lg z-10 py-1 min-w-[120px]">
+                    <button onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-secondary w-full">
+                      <Trash2 className="w-4 h-4" /> Delete
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
+        </div>
+
+        {/* Content */}
+        <div className="mt-3 text-foreground text-sm leading-relaxed whitespace-pre-wrap">
+          {displayContent.split(/(\#\w+)/g).map((part, i) =>
+            part.startsWith('#') ? <span key={i} className="text-primary font-medium hover:underline cursor-pointer">{part}</span> : part
+          )}
+        </div>
+
+        {/* Image */}
+        {post.image_url && !trollMessage && (
+          <div className="mt-3 rounded-lg overflow-hidden border">
+            <img src={post.image_url} alt="" className="w-full max-h-96 object-cover" />
+          </div>
         )}
       </div>
 
-      <div className="mt-3 text-foreground whitespace-pre-wrap">
-        {post.content.split(/(\#\w+)/g).map((part, i) =>
-          part.startsWith('#') ? <span key={i} className="text-primary font-medium">{part}</span> : part
-        )}
-      </div>
-
-      {post.image_url && (
-        <img src={post.image_url} alt="" className="mt-3 rounded-lg max-h-96 w-full object-cover" />
-      )}
-
-      <div className="flex items-center mt-3 border-t pt-2 -mx-1">
-        <button onClick={handleLike} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-sm hover:bg-secondary transition">
-          <Heart className={`w-4 h-4 ${liked ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`} />
-          <span className={liked ? 'text-destructive' : 'text-muted-foreground'}>{likesCount}</span>
+      {/* Reactions Footer */}
+      <div className="flex items-center border-t px-2">
+        <button
+          onClick={handleLike}
+          className={cn(
+            "flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm transition-colors",
+            liked ? "text-destructive" : "text-muted-foreground hover:text-destructive"
+          )}
+        >
+          <Heart className={cn("w-4 h-4", liked && "fill-current")} />
+          <span className="text-xs">{likesCount}</span>
         </button>
-        <button onClick={() => onCommentClick?.(post.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-sm hover:bg-secondary transition text-muted-foreground">
+        <button
+          onClick={() => onCommentClick?.(post.id)}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+        >
           <MessageCircle className="w-4 h-4" />
-          <span>{post.comments_count}</span>
+          <span className="text-xs">{post.comments_count}</span>
         </button>
-        <button onClick={handleShare} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-sm hover:bg-secondary transition text-muted-foreground">
+        <button
+          onClick={handleShare}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+        >
           <Share2 className="w-4 h-4" />
-        </button>
-        <button onClick={handleBookmark} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-sm hover:bg-secondary transition">
-          <Bookmark className={`w-4 h-4 ${bookmarked ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
+          <span className="text-xs">Share</span>
         </button>
       </div>
     </div>

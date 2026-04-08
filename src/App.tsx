@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Navbar from '@/components/Navbar';
+import AdminEventListener from '@/components/AdminEventListener';
 import Auth from '@/pages/Auth';
 import Feed from '@/pages/Feed';
 import Explore from '@/pages/Explore';
@@ -18,6 +19,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Navbar />
+      <AdminEventListener />
       {children}
     </div>
   );

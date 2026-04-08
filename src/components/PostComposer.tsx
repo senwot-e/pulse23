@@ -19,9 +19,6 @@ export default function PostComposer({ onPost }: PostComposerProps) {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const charCount = content.length;
-  const charColor = charCount >= 275 ? 'text-destructive' : charCount >= 260 ? 'text-amber-500' : 'text-muted-foreground';
-
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
@@ -65,6 +62,11 @@ export default function PostComposer({ onPost }: PostComposerProps) {
         image_url: imageUrl,
       });
       if (error) throw error;
+      // Award 1 Pulse for posting
+      const { data: profile } = await supabase.from('profiles').select('pulse_count').eq('id', user.id).single();
+      if (profile) {
+        await supabase.from('profiles').update({ pulse_count: (profile.pulse_count || 0) + 1 }).eq('id', user.id);
+      }
       setContent('');
       setImageUrl(null);
       setEnhanced(false);
@@ -76,22 +78,21 @@ export default function PostComposer({ onPost }: PostComposerProps) {
 
   if (!user) {
     return (
-      <div className="bg-card rounded-lg border p-6 mb-4 text-center">
+      <div className="bg-card rounded-xl border shadow-sm p-6 mb-4 text-center">
         <p className="text-muted-foreground">Sign in to share what's on your mind</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-card rounded-lg border p-4 mb-4">
+    <div className="bg-card rounded-xl border shadow-sm p-4 mb-4">
       <textarea
         value={content}
         onChange={e => { setContent(e.target.value); setEnhanced(false); }}
         placeholder="What's happening?"
-        maxLength={280}
-        rows={2}
-        className="w-full bg-transparent resize-none outline-none text-foreground placeholder:text-muted-foreground"
-        style={{ maxHeight: '7.5rem' }}
+        rows={3}
+        className="w-full bg-transparent resize-none outline-none text-foreground placeholder:text-muted-foreground text-sm"
+        style={{ maxHeight: '12rem' }}
       />
       {imageUrl && (
         <div className="relative mt-2">
@@ -112,9 +113,8 @@ export default function PostComposer({ onPost }: PostComposerProps) {
           {enhanced && (
             <button onClick={handleUndo} className="text-sm text-primary hover:underline">Undo</button>
           )}
-          <span className={`text-sm ${charColor}`}>{charCount}/280</span>
         </div>
-        <button onClick={handleSubmit} disabled={loading || !content.trim() || charCount > 280} className="px-5 py-2 bg-primary text-primary-foreground rounded-full font-medium text-sm hover:opacity-90 transition disabled:opacity-50">
+        <button onClick={handleSubmit} disabled={loading || !content.trim()} className="px-5 py-2 bg-primary text-primary-foreground rounded-full font-medium text-sm hover:opacity-90 transition disabled:opacity-50">
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Pulse it'}
         </button>
       </div>
