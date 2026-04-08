@@ -138,12 +138,26 @@ export default function Profile() {
           ) : null}
         </div>
         <div className="mt-3">
-          <h1 className="text-xl font-heading font-bold text-foreground">{profile.display_name || profile.username}</h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl font-heading font-bold text-foreground">{profile.display_name || profile.username}</h1>
+            {badges.map(badge => (
+              <span
+                key={badge.id}
+                title={badge.detail || badge.name}
+                className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white"
+                style={{ backgroundColor: badge.color }}
+              >
+                {badge.image_url && <img src={badge.image_url} alt="" className="w-3 h-3 rounded-full" />}
+                {badge.name}
+              </span>
+            ))}
+          </div>
           <p className="text-sm text-muted-foreground">@{profile.username}</p>
           {profile.bio && <p className="text-sm text-foreground mt-2">{profile.bio}</p>}
           <div className="flex gap-4 mt-3 text-sm">
             <span className="text-foreground"><strong>{followingCount}</strong> <span className="text-muted-foreground">Following</span></span>
             <span className="text-foreground"><strong>{followerCount}</strong> <span className="text-muted-foreground">Followers</span></span>
+            <span className="text-foreground flex items-center gap-1"><Zap className="w-3.5 h-3.5 text-primary" /><strong>{profile.pulse_count || 0}</strong> <span className="text-muted-foreground">Pulse</span></span>
           </div>
         </div>
       </div>
