@@ -8,6 +8,7 @@ interface Profile {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
+  pulse_count: number;
   created_at: string;
 }
 
@@ -16,11 +17,13 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  isAdmin: boolean;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  user: null, session: null, profile: null, loading: true, signOut: async () => {},
+  user: null, session: null, profile: null, loading: true, isAdmin: false, signOut: async () => {}, refreshProfile: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -65,8 +68,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
   };
 
+  const refreshProfile = async () => {
+    if (user) await fetchProfile(user.id);
+  };
+
+  const isAdmin = profile?.username === 'senwot';
+
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, isAdmin, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

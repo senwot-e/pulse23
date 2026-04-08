@@ -19,9 +19,45 @@ export default function Feed() {
   const [hasMore, setHasMore] = useState(true);
   const [newPostsBanner, setNewPostsBanner] = useState(false);
   const [expandedComments, setExpandedComments] = useState<string | null>(null);
+  const [trollMessage, setTrollMessage] = useState<string | null>(null);
   const observerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { document.title = 'Pulse 23 · Feed'; }, []);
+
+  // Check for active troll mode
+  useEffect(() => {
+    const checkTroll = async () => {
+      const now = new Date().toISOString();
+      const { data } = await supabase
+        .from('admin_events')
+        .select('*')
+        .eq('type', 'troll_posts')
+        .gt('active_until', now)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (data && data.length > 0) {
+        const event = data[0];
+        setTrollMessage((event.config as any)?.message || '🐒 Monkeyed!');
+        const remaining = new Date(event.active_until).getTime() - Date.now();
+        setTimeout(() => setTrollMessage(null), remaining);
+      }
+    };
+    checkTroll();
+
+    const channel = supabase
+      .channel('troll-events')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_events' }, (payload) => {
+        const event = payload.new as any;
+        if (event.type === 'troll_posts') {
+          setTrollMessage(event.config?.message || '🐒 Monkeyed!');
+          const remaining = new Date(event.active_until).getTime() - Date.now();
+          if (remaining > 0) setTimeout(() => setTrollMessage(null), remaining);
+        }
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const fetchPosts = useCallback(async (pageNum: number) => {
     try {
@@ -52,7 +88,6 @@ export default function Feed() {
 
   useEffect(() => { fetchPosts(0); fetchUserData(); }, [fetchPosts, fetchUserData]);
 
-  // Infinite scroll
   useEffect(() => {
     if (!observerRef.current || !hasMore) return;
     const observer = new IntersectionObserver(([entry]) => {
@@ -66,7 +101,6 @@ export default function Feed() {
     return () => observer.disconnect();
   }, [hasMore, loading, page, fetchPosts]);
 
-  // Realtime
   useEffect(() => {
     const channel = supabase.channel('feed-posts').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, () => {
       setNewPostsBanner(true);
@@ -108,6 +142,7 @@ export default function Feed() {
               isBookmarked={bookmarks.has(post.id)}
               onDelete={handleDelete}
               onCommentClick={(id) => setExpandedComments(expandedComments === id ? null : id)}
+              trollMessage={trollMessage}
             />
             {expandedComments === post.id && <CommentSection postId={post.id} postUserId={post.user_id} />}
           </div>
