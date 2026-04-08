@@ -49,12 +49,14 @@ export default function Profile() {
       const { data } = await supabase.from('profiles').select('*').eq('username', username).single();
       setProfile(data);
       if (data) {
-        const [{ count: fc }, { count: fgc }] = await Promise.all([
+        const [{ count: fc }, { count: fgc }, badgesRes] = await Promise.all([
           supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', data.id),
           supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', data.id),
+          supabase.from('user_badges').select('badge_id, badges(id, name, image_url, detail, color)').eq('user_id', data.id),
         ]);
         setFollowerCount(fc || 0);
         setFollowingCount(fgc || 0);
+        setBadges((badgesRes.data || []).map((ub: any) => ub.badges).filter(Boolean));
         if (user) {
           const { data: f } = await supabase.from('follows').select('follower_id').match({ follower_id: user.id, following_id: data.id });
           setIsFollowing((f?.length || 0) > 0);
