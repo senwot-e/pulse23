@@ -2,7 +2,7 @@ import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import Navbar from '@/components/Navbar';
+import AppSidebar from '@/components/AppSidebar';
 import AdminEventListener from '@/components/AdminEventListener';
 import Auth from '@/pages/Auth';
 import Feed from '@/pages/Feed';
@@ -17,10 +17,12 @@ import NotFound from '@/pages/NotFound';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
-      <Navbar />
-      <AdminEventListener />
-      {children}
+    <div className="min-h-screen bg-background flex">
+      <AppSidebar />
+      <div className="flex-1 md:ml-16 pb-16 md:pb-0">
+        <AdminEventListener />
+        {children}
+      </div>
     </div>
   );
 }

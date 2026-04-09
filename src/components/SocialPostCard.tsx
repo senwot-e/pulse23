@@ -5,6 +5,7 @@ import {
   Bookmark,
   MoreHorizontal,
   Trash2,
+  Fish,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
@@ -12,7 +13,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface PostProfile {
   username: string;
@@ -54,6 +55,7 @@ interface Badge {
 
 export default function SocialPostCard({ post, isLiked: initialLiked = false, isBookmarked: initialBookmarked = false, onDelete, onCommentClick, trollMessage }: PostCardProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [liked, setLiked] = useState(initialLiked);
   const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const [likesCount, setLikesCount] = useState(post.likes_count);
@@ -121,6 +123,11 @@ export default function SocialPostCard({ post, isLiked: initialLiked = false, is
     } catch { toast.error('Failed to delete'); }
   };
 
+  const handleFish = () => {
+    const content = trollMessage || post.content;
+    navigate(`/ai?upload=${encodeURIComponent(content)}`);
+  };
+
   const displayContent = trollMessage || post.content;
 
   return (
@@ -129,15 +136,10 @@ export default function SocialPostCard({ post, isLiked: initialLiked = false, is
       trollMessage && "border-destructive/30"
     )}>
       <div className="p-4">
-        {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <Link to={`/profile/${post.profiles.username}`}>
-              <img
-                src={getAvatar(post.profiles.username, post.profiles.avatar_url)}
-                alt=""
-                className="w-10 h-10 rounded-full object-cover ring-2 ring-border"
-              />
+              <img src={getAvatar(post.profiles.username, post.profiles.avatar_url)} alt="" className="w-10 h-10 rounded-full object-cover ring-2 ring-border" />
             </Link>
             <div>
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -145,12 +147,7 @@ export default function SocialPostCard({ post, isLiked: initialLiked = false, is
                   {post.profiles.display_name || post.profiles.username}
                 </Link>
                 {badges.map(badge => (
-                  <span
-                    key={badge.id}
-                    title={badge.detail || badge.name}
-                    className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white"
-                    style={{ backgroundColor: badge.color }}
-                  >
+                  <span key={badge.id} title={badge.detail || badge.name} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: badge.color }}>
                     {badge.image_url && <img src={badge.image_url} alt="" className="w-3 h-3 rounded-full" />}
                     {badge.name}
                   </span>
@@ -163,13 +160,7 @@ export default function SocialPostCard({ post, isLiked: initialLiked = false, is
           </div>
 
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => onCommentClick ? undefined : handleBookmark()}
-              className={cn(
-                "p-1.5 rounded-full transition-colors",
-                bookmarked ? "text-primary" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
+            <button onClick={handleBookmark} className={cn("p-1.5 rounded-full transition-colors", bookmarked ? "text-primary" : "text-muted-foreground hover:text-foreground")}>
               <Bookmark className={cn("w-4 h-4", bookmarked && "fill-current")} />
             </button>
             {user?.id === post.user_id && (
@@ -189,14 +180,12 @@ export default function SocialPostCard({ post, isLiked: initialLiked = false, is
           </div>
         </div>
 
-        {/* Content */}
         <div className="mt-3 text-foreground text-sm leading-relaxed whitespace-pre-wrap">
           {displayContent.split(/(\#\w+)/g).map((part, i) =>
             part.startsWith('#') ? <span key={i} className="text-primary font-medium hover:underline cursor-pointer">{part}</span> : part
           )}
         </div>
 
-        {/* Image */}
         {post.image_url && !trollMessage && (
           <div className="mt-3 rounded-lg overflow-hidden border">
             <img src={post.image_url} alt="" className="w-full max-h-96 object-cover" />
@@ -204,31 +193,21 @@ export default function SocialPostCard({ post, isLiked: initialLiked = false, is
         )}
       </div>
 
-      {/* Reactions Footer */}
+      {/* Reactions */}
       <div className="flex items-center border-t px-2">
-        <button
-          onClick={handleLike}
-          className={cn(
-            "flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm transition-colors",
-            liked ? "text-destructive" : "text-muted-foreground hover:text-destructive"
-          )}
-        >
+        <button onClick={handleLike} className={cn("flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm transition-colors", liked ? "text-destructive" : "text-muted-foreground hover:text-destructive")}>
           <Heart className={cn("w-4 h-4", liked && "fill-current")} />
           <span className="text-xs">{likesCount}</span>
         </button>
-        <button
-          onClick={() => onCommentClick?.(post.id)}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm text-muted-foreground hover:text-primary transition-colors"
-        >
+        <button onClick={() => onCommentClick?.(post.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm text-muted-foreground hover:text-primary transition-colors">
           <MessageCircle className="w-4 h-4" />
           <span className="text-xs">{post.comments_count}</span>
         </button>
-        <button
-          onClick={handleShare}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm text-muted-foreground hover:text-primary transition-colors"
-        >
+        <button onClick={handleShare} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm text-muted-foreground hover:text-primary transition-colors">
           <Share2 className="w-4 h-4" />
-          <span className="text-xs">Share</span>
+        </button>
+        <button onClick={handleFish} className="flex items-center justify-center p-2.5 text-muted-foreground hover:text-primary transition-colors" title="Send to Nemo">
+          <Fish className="w-4 h-4" />
         </button>
       </div>
     </div>
