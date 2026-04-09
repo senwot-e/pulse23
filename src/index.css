@@ -27,7 +27,7 @@
     --ring: 221 83% 53%;
     --radius: 0.75rem;
     --gradient-primary: linear-gradient(135deg, hsl(221, 83%, 53%), hsl(262, 83%, 58%));
-    --gradient-navbar: linear-gradient(to right, hsl(221, 83%, 45%), hsl(221, 83%, 53%) 40%, hsl(0, 0%, 0%));
+    --gradient-navbar: linear-gradient(to bottom, hsl(220, 10%, 22%), hsl(220, 10%, 19%));
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -58,7 +58,7 @@
     --border: 217 33% 17%;
     --input: 217 33% 17%;
     --ring: 221 83% 53%;
-    --gradient-navbar: linear-gradient(to right, hsl(221, 83%, 36%), hsl(222, 47%, 20%) 40%, hsl(222, 47%, 5%));
+    --gradient-navbar: linear-gradient(to bottom, hsl(220, 10%, 18%), hsl(220, 10%, 15%));
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -89,6 +89,13 @@
   .gradient-navbar {
     background: var(--gradient-navbar);
   }
+}
+
+.lab-bg::before {
+  overflow: hidden;
+  max-width: 100vw;
+  max-height: 100vh;
+  box-sizing: border-box;
 }
 
 @keyframes blink {
