@@ -27,7 +27,7 @@
     --ring: 221 83% 53%;
     --radius: 0.75rem;
     --gradient-primary: linear-gradient(135deg, hsl(221, 83%, 53%), hsl(262, 83%, 58%));
-    --gradient-navbar: linear-gradient(to right, hsl(0, 0%, 0%), hsl(221, 83%, 53%) 40%, hsl(0, 0%, 100%));
+    --gradient-navbar: linear-gradient(to right, hsl(221, 83%, 45%), hsl(221, 83%, 53%) 40%, hsl(0, 0%, 100%));
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
