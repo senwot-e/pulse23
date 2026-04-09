@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Loader2, Moon, Sun, Camera, Mail, Zap, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
-import MonkeyPanel from '@/components/MonkeyPanel';
+
 
 function getAvatar(username: string, url?: string | null) {
   return url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`;
@@ -205,9 +205,6 @@ export default function Settings() {
           <span className="ml-auto text-2xl font-heading font-bold text-primary">{profile.pulse_count || 0}</span>
         </div>
       </div>
-
-      {/* Admin Monkey Panel */}
-      {isAdmin && <MonkeyPanel />}
 
       {/* Sign Out */}
       <div className="bg-card border rounded-lg p-4">
