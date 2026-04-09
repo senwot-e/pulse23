@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import SocialPostCard, { PostData } from '@/components/SocialPostCard';
 import CommentSection from '@/components/CommentSection';
+import MonkeyPanel from '@/components/MonkeyPanel';
 import { ProfileSkeleton, PostSkeleton } from '@/components/Skeletons';
 import { Loader2, Edit2, Zap } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -22,7 +23,7 @@ function getAvatar(username: string, url?: string | null) {
 
 export default function Profile() {
   const { username } = useParams<{ username: string }>();
-  const { user, profile: myProfile } = useAuth();
+  const { user, profile: myProfile, isAdmin } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'posts' | 'likes' | 'bookmarks'>('posts');
@@ -161,6 +162,9 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* Admin Monkey Panel - only visible to senwot on their own profile */}
+      {isAdmin && isOwn && <MonkeyPanel />}
 
       <div className="flex gap-1 mt-4 mb-3">
         {(['posts', 'likes', ...(isOwn ? ['bookmarks'] : [])] as const).map(t => (
