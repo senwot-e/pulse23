@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import SocialPostCard, { PostData } from '@/components/SocialPostCard';
 import CommentSection from '@/components/CommentSection';
 import { PostSkeleton } from '@/components/Skeletons';
+import VerifiedBadge from '@/components/VerifiedBadge';
 import { Search, TrendingUp, Users } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 function getAvatar(username: string, url?: string | null) {
-  return url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`;
+  return url || `https://api.dicebear.com/7.x/thumbs/svg?seed=${username}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
 }
 
 export default function Explore() {
@@ -21,7 +21,7 @@ export default function Explore() {
   const [searchTab, setSearchTab] = useState<'posts' | 'people'>('posts');
   const [posts, setPosts] = useState<PostData[]>([]);
   const [people, setPeople] = useState<any[]>([]);
-  const [trending, setTrending] = useState<string[]>([]);
+  const [trending, setTrending] = useState<{ tag: string; count: number }[]>([]);
   const [discoverPeople, setDiscoverPeople] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [followingSet, setFollowingSet] = useState<Set<string>>(new Set());
@@ -37,7 +37,7 @@ export default function Explore() {
       const matches = p.content.match(/#\w+/g);
       matches?.forEach(h => { hashtags[h] = (hashtags[h] || 0) + 1; });
     });
-    setTrending(Object.entries(hashtags).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([h]) => h));
+    setTrending(Object.entries(hashtags).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([tag, count]) => ({ tag, count })));
   }, []);
 
   const fetchDiscover = useCallback(async () => {
@@ -61,10 +61,10 @@ export default function Explore() {
     const init = async () => {
       setLoading(true);
       if (tag) {
-        const { data } = await supabase.from('posts').select('*, profiles(username, display_name, avatar_url)').ilike('content', `%${tag}%`).order('created_at', { ascending: false }).limit(50);
+        const { data } = await supabase.from('posts').select('*, profiles(username, display_name, avatar_url, is_verified)').ilike('content', `%${tag}%`).order('created_at', { ascending: false }).limit(50);
         setPosts((data as any) || []);
       } else if (!query) {
-        const { data } = await supabase.from('posts').select('*, profiles(username, display_name, avatar_url)').order('created_at', { ascending: false }).limit(20);
+        const { data } = await supabase.from('posts').select('*, profiles(username, display_name, avatar_url, is_verified)').order('created_at', { ascending: false }).limit(20);
         setPosts((data as any) || []);
         await fetchTrending();
         await fetchDiscover();
@@ -81,7 +81,7 @@ export default function Explore() {
     const timer = setTimeout(async () => {
       setLoading(true);
       if (searchTab === 'posts') {
-        const { data } = await supabase.from('posts').select('*, profiles(username, display_name, avatar_url)').ilike('content', `%${query}%`).order('created_at', { ascending: false }).limit(30);
+        const { data } = await supabase.from('posts').select('*, profiles(username, display_name, avatar_url, is_verified)').ilike('content', `%${query}%`).order('created_at', { ascending: false }).limit(30);
         setPosts((data as any) || []);
       } else {
         const { data } = await supabase.from('profiles').select('*').or(`username.ilike.%${query}%,display_name.ilike.%${query}%`).limit(20);
@@ -111,25 +111,28 @@ export default function Explore() {
   };
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-4">
+    <div className="max-w-2xl mx-auto px-4 py-4">
       <div className="relative mb-4">
-        <Search className="absolute left-4 top-3 w-5 h-5 text-muted-foreground" />
+        <Search className="absolute left-4 top-3 w-5 h-5 text-zinc-400" />
         <input
           value={query}
           onChange={e => { setQuery(e.target.value); if (tag) setSearchParams({}); }}
           placeholder="Search posts and people..."
-          className="w-full pl-11 pr-4 py-3 bg-secondary rounded-full text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary"
+          className="w-full pl-11 pr-4 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900"
         />
       </div>
 
       {query ? (
         <>
           <div className="flex gap-2 mb-4">
-            <button onClick={() => setSearchTab('posts')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${searchTab === 'posts' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>Posts</button>
-            <button onClick={() => setSearchTab('people')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${searchTab === 'people' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>People</button>
+            <button onClick={() => setSearchTab('posts')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${searchTab === 'posts' ? 'bg-blue-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'}`}>Posts</button>
+            <button onClick={() => setSearchTab('people')} className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${searchTab === 'people' ? 'bg-blue-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'}`}>People</button>
           </div>
-          {loading ? Array.from({ length: 3 }).map((_, i) => <PostSkeleton key={i} />) : searchTab === 'posts' ? (
-            posts.length === 0 ? <p className="text-center text-muted-foreground py-8">No posts found</p> :
+          {loading ? (
+            searchTab === 'posts' ? Array.from({ length: 3 }).map((_, i) => <PostSkeleton key={i} />) :
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-40 bg-zinc-200 dark:bg-zinc-700 rounded-2xl animate-pulse" />)}</div>
+          ) : searchTab === 'posts' ? (
+            posts.length === 0 ? <p className="text-center text-zinc-400 py-8">No posts found</p> :
             posts.map(p => (
               <div key={p.id}>
                 <SocialPostCard post={p} isLiked={likes.has(p.id)} onCommentClick={id => setExpandedComments(expandedComments === id ? null : id)} />
@@ -137,51 +140,57 @@ export default function Explore() {
               </div>
             ))
           ) : (
-            people.length === 0 ? <p className="text-center text-muted-foreground py-8">No people found</p> :
-            people.map(p => (
-              <div key={p.id} className="flex items-center justify-between bg-card rounded-lg border p-3 mb-2">
-                <Link to={`/profile/${p.username}`} className="flex items-center gap-3">
-                  <img src={getAvatar(p.username, p.avatar_url)} alt="" className="w-10 h-10 rounded-full" />
-                  <div>
-                    <p className="font-medium text-foreground">{p.display_name || p.username}</p>
-                    <p className="text-sm text-muted-foreground">@{p.username}</p>
+            people.length === 0 ? <p className="text-center text-zinc-400 py-8">No people found</p> :
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {people.map(p => (
+                <div key={p.id} className="rounded-2xl border border-zinc-200 dark:border-zinc-700 p-4 flex flex-col items-center gap-2 hover:shadow-md hover:border-blue-200 transition-all text-center">
+                  <Link to={`/profile/${p.username}`}>
+                    <img src={getAvatar(p.username, p.avatar_url)} alt={p.username} className="w-14 h-14 rounded-full" />
+                  </Link>
+                  <div className="flex items-center gap-1">
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">{p.display_name || p.username}</p>
+                    {p.is_verified && <VerifiedBadge />}
                   </div>
-                </Link>
-                {user && p.id !== user.id && (
-                  <button onClick={() => toggleFollow(p.id)} className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${followingSet.has(p.id) ? 'bg-secondary text-foreground' : 'bg-primary text-primary-foreground'}`}>
-                    {followingSet.has(p.id) ? 'Following' : 'Follow'}
-                  </button>
-                )}
-              </div>
-            ))
+                  <p className="text-xs text-zinc-500">@{p.username}</p>
+                  {user && p.id !== user.id && (
+                    <button onClick={() => toggleFollow(p.id)} className={`px-3 py-1 rounded-full text-xs font-medium transition ${followingSet.has(p.id) ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300' : 'bg-blue-600 text-white'}`}>
+                      {followingSet.has(p.id) ? 'Following' : 'Follow'}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
         </>
       ) : (
         <>
-          {tag && <p className="text-sm text-muted-foreground mb-3">Showing posts with {tag}</p>}
+          {tag && <p className="text-sm text-zinc-400 mb-3">Showing posts with {tag}</p>}
           {!tag && trending.length > 0 && (
             <div className="mb-6">
-              <h3 className="font-heading font-semibold text-foreground flex items-center gap-2 mb-3"><TrendingUp className="w-4 h-4 text-primary" /> Trending</h3>
+              <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2 mb-3"><TrendingUp className="w-4 h-4 text-blue-600" /> Trending</h3>
               <div className="flex flex-wrap gap-2">
                 {trending.map(h => (
-                  <button key={h} onClick={() => setSearchParams({ tag: h })} className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary/20 transition">{h}</button>
+                  <button key={h.tag} onClick={() => setSearchParams({ tag: h.tag })} className="px-4 py-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-full text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-950/50 transition">{h.tag}</button>
                 ))}
               </div>
             </div>
           )}
           {!tag && discoverPeople.length > 0 && (
             <div className="mb-6">
-              <h3 className="font-heading font-semibold text-foreground flex items-center gap-2 mb-3"><Users className="w-4 h-4 text-primary" /> Discover People</h3>
-              <div className="grid grid-cols-2 gap-2">
+              <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2 mb-3"><Users className="w-4 h-4 text-blue-600" /> Discover People</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {discoverPeople.filter(p => p.id !== user?.id).slice(0, 6).map(p => (
-                  <div key={p.id} className="bg-card rounded-lg border p-3 flex flex-col items-center text-center">
+                  <div key={p.id} className="rounded-2xl border border-zinc-200 dark:border-zinc-700 p-4 flex flex-col items-center gap-2 hover:shadow-md hover:border-blue-200 transition-all text-center">
                     <Link to={`/profile/${p.username}`}>
-                      <img src={getAvatar(p.username, p.avatar_url)} alt="" className="w-12 h-12 rounded-full mb-2" />
+                      <img src={getAvatar(p.username, p.avatar_url)} alt={p.username} className="w-14 h-14 rounded-full" />
                     </Link>
-                    <p className="text-sm font-medium text-foreground truncate w-full">{p.display_name || p.username}</p>
-                    <p className="text-xs text-muted-foreground mb-2">@{p.username}</p>
+                    <div className="flex items-center gap-1">
+                      <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">{p.display_name || p.username}</p>
+                      {p.is_verified && <VerifiedBadge />}
+                    </div>
+                    <p className="text-xs text-zinc-500">@{p.username}</p>
                     {user && (
-                      <button onClick={() => toggleFollow(p.id)} className={`px-3 py-1 rounded-full text-xs font-medium transition ${followingSet.has(p.id) ? 'bg-secondary text-foreground' : 'bg-primary text-primary-foreground'}`}>
+                      <button onClick={() => toggleFollow(p.id)} className={`px-3 py-1 rounded-full text-xs font-medium transition ${followingSet.has(p.id) ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300' : 'bg-blue-600 text-white'}`}>
                         {followingSet.has(p.id) ? 'Following' : 'Follow'}
                       </button>
                     )}
