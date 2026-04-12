@@ -13,13 +13,14 @@ import DM from '@/pages/DM';
 import AI from '@/pages/AI';
 import PostDetail from '@/pages/PostDetail';
 import Settings from '@/pages/Settings';
+import Bookmarks from '@/pages/Bookmarks';
 import NotFound from '@/pages/NotFound';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-slate-100 dark:bg-zinc-950 flex">
       <AppSidebar />
-      <div className="flex-1 md:ml-16 pb-16 md:pb-0">
+      <div className="flex-1 md:ml-[260px] pb-16 md:pb-0">
         <AdminEventListener />
         {children}
       </div>
@@ -29,9 +30,14 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
 const App = () => (
   <AuthProvider>
-    <Toaster position="top-right" toastOptions={{
-      className: '!bg-card !text-foreground !border !border-border',
-    }} />
+    <Toaster
+      position="bottom-center"
+      toastOptions={{
+        style: { borderRadius: '12px', background: '#18181B', color: '#fff', fontSize: '14px' },
+        success: { iconTheme: { primary: '#22C55E', secondary: '#fff' } },
+        error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } },
+      }}
+    />
     <BrowserRouter>
       <Routes>
         <Route path="/auth" element={<Auth />} />
@@ -45,6 +51,7 @@ const App = () => (
         <Route path="/profile/:username" element={<AppLayout><Profile /></AppLayout>} />
         <Route path="/post/:id" element={<AppLayout><PostDetail /></AppLayout>} />
         <Route path="/settings" element={<AppLayout><ProtectedRoute><Settings /></ProtectedRoute></AppLayout>} />
+        <Route path="/bookmarks" element={<AppLayout><ProtectedRoute><Bookmarks /></ProtectedRoute></AppLayout>} />
         <Route path="*" element={<AppLayout><NotFound /></AppLayout>} />
       </Routes>
     </BrowserRouter>

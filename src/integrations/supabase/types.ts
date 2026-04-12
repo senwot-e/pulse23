@@ -482,31 +482,49 @@ export type Database = {
       }
       profiles: {
         Row: {
+          allow_ai_suggestions: boolean | null
           avatar_url: string | null
           bio: string | null
           created_at: string | null
           display_name: string | null
           id: string
+          is_private: boolean | null
+          is_verified: boolean | null
+          notification_preferences: Json | null
           pulse_count: number
+          show_online_status: boolean | null
           username: string
+          website_url: string | null
         }
         Insert: {
+          allow_ai_suggestions?: boolean | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
           display_name?: string | null
           id: string
+          is_private?: boolean | null
+          is_verified?: boolean | null
+          notification_preferences?: Json | null
           pulse_count?: number
+          show_online_status?: boolean | null
           username: string
+          website_url?: string | null
         }
         Update: {
+          allow_ai_suggestions?: boolean | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
           display_name?: string | null
           id?: string
+          is_private?: boolean | null
+          is_verified?: boolean | null
+          notification_preferences?: Json | null
           pulse_count?: number
+          show_online_status?: boolean | null
           username?: string
+          website_url?: string | null
         }
         Relationships: []
       }
