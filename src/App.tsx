@@ -14,6 +14,7 @@ import AI from '@/pages/AI';
 import PostDetail from '@/pages/PostDetail';
 import Settings from '@/pages/Settings';
 import Bookmarks from '@/pages/Bookmarks';
+import ResetPassword from '@/pages/ResetPassword';
 import NotFound from '@/pages/NotFound';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
@@ -41,6 +42,7 @@ const App = () => (
     <BrowserRouter>
       <Routes>
         <Route path="/auth" element={<Auth />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/" element={<Navigate to="/feed" replace />} />
         <Route path="/feed" element={<AppLayout><Feed /></AppLayout>} />
         <Route path="/explore" element={<AppLayout><Explore /></AppLayout>} />

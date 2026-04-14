@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, Bell, MessageSquare, Sparkles, Compass, Bookmark, User, Settings, LogOut } from 'lucide-react';
+import { Home, Search, Bell, MessageSquare, Sparkles, Bookmark, User, Settings, LogOut, Moon, Sun } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -60,7 +60,7 @@ export default function AppSidebar() {
     { path: '/notifications', label: 'Notifications', icon: Bell, badge: unreadNotifs, authOnly: false },
     { path: '/dm', label: 'Messages', icon: MessageSquare, badge: unreadDMs, authOnly: false },
     { path: '/ai', label: 'Nemo', icon: Sparkles, pill: 'NEW' },
-    { path: '/explore?discover=true', label: 'Discover', icon: Compass },
+    
     { path: '/bookmarks', label: 'Bookmarks', icon: Bookmark, authOnly: true },
     { path: `/profile/${profile?.username || ''}`, label: 'Profile', icon: User, authOnly: true },
     { path: '/settings', label: 'Settings', icon: Settings, authOnly: true },
