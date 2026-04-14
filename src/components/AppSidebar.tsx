@@ -38,7 +38,6 @@ export default function AppSidebar() {
   }, [user]);
 
   const isActive = (path: string) => {
-    if (path === '/explore?discover=true') return location.pathname === '/explore' && location.search.includes('discover=true');
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
