@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import VerifiedBadge from './VerifiedBadge';
+import UserBadges from './UserBadges';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -138,6 +139,7 @@ export default function SocialPostCard({ post, isLiked: initialLiked = false, is
                   {post.profiles.display_name || post.profiles.username}
                 </Link>
                 {post.profiles.is_verified && <VerifiedBadge />}
+                <UserBadges userId={post.user_id} />
               </div>
               <p className="text-xs text-zinc-400">
                 @{post.profiles.username} · {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
