@@ -6,6 +6,7 @@ import SocialPostCard, { PostData } from '@/components/SocialPostCard';
 import CommentSection from '@/components/CommentSection';
 import MonkeyPanel from '@/components/MonkeyPanel';
 import VerifiedBadge from '@/components/VerifiedBadge';
+import UserBadges from '@/components/UserBadges';
 import { ProfileSkeleton, PostSkeleton } from '@/components/Skeletons';
 import { Loader2, Edit2, Zap } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -137,6 +138,7 @@ export default function Profile() {
           <div className="flex items-center gap-1.5 flex-wrap">
             <h1 className="text-xl font-bold text-zinc-900 dark:text-white">{profile.display_name || profile.username}</h1>
             {profile.is_verified && <VerifiedBadge />}
+            <UserBadges userId={profile.id} />
           </div>
           <p className="text-sm text-zinc-400">@{profile.username}</p>
           {profile.bio && <p className="text-sm text-zinc-700 dark:text-zinc-300 mt-2">{profile.bio}</p>}
