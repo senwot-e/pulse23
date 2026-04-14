@@ -120,7 +120,12 @@ export default function AppSidebar() {
 
         {/* Auth card (logged out) */}
         {!user && (
-          <div className="p-3">
+          <div className="p-3 space-y-3">
+            <div className="flex justify-end px-1">
+              <button onClick={toggleDark} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors" aria-label="Toggle dark mode">
+                {isDark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-zinc-600 fill-current" />}
+              </button>
+            </div>
             <div className="bg-gradient-to-br from-[#EFF6FF] to-[#F5F3FF] dark:from-[rgba(99,102,241,0.08)] dark:to-[rgba(99,102,241,0.08)] border border-[#BFDBFE] dark:border-[rgba(99,102,241,0.2)] rounded-2xl p-4 text-center">
               <PulseLogo size={24} />
               <p className="text-sm font-semibold text-zinc-900 dark:text-white mt-2">Join Pulse 23</p>
