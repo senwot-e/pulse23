@@ -139,18 +139,24 @@ export default function AppSidebar() {
         {/* Bottom section (logged in) */}
         {user && profile && (
           <div className="border-t border-zinc-100 dark:border-zinc-800 px-3 py-4">
-            {/* Dark mode toggle */}
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[13px] text-zinc-500">Appearance</span>
-              <button
-                onClick={toggleDark}
-                className={`relative w-10 h-[22px] rounded-full transition-colors ${isDark ? 'bg-gradient-to-r from-blue-500 to-purple-500' : 'bg-zinc-200 dark:bg-zinc-700'}`}
-                aria-label="Toggle dark mode"
-              >
-                <div className={`absolute top-0.5 w-[18px] h-[18px] rounded-full bg-white shadow transition-transform duration-200 ${isDark ? 'translate-x-[20px]' : 'translate-x-0.5'}`} />
+            {/* User identity */}
+            <div className="flex items-center gap-2.5">
+              <img
+                src={getAvatar(profile.username, profile.avatar_url)}
+                alt={profile.username}
+                className="w-[38px] h-[38px] rounded-full object-cover ring-2 ring-blue-100 dark:ring-zinc-700"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-semibold text-zinc-900 dark:text-white truncate max-w-[120px]">{profile.display_name || profile.username}</p>
+                <p className="text-[11px] text-zinc-400 truncate">@{profile.username}</p>
+              </div>
+              <button onClick={toggleDark} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors mr-1" aria-label="Toggle dark mode">
+                {isDark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-zinc-600 fill-current" />}
+              </button>
+              <button onClick={handleSignOut} className="text-zinc-400 hover:text-red-500 transition-colors" aria-label="Sign out">
+                <LogOut className="w-4 h-4" />
               </button>
             </div>
-            {/* User identity */}
             <div className="flex items-center gap-2.5">
               <img
                 src={getAvatar(profile.username, profile.avatar_url)}

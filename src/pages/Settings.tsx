@@ -338,6 +338,32 @@ export default function Settings() {
         </div>
       </section>
 
+      {/* Beta Codes */}
+      <section>
+        <p className="text-xs uppercase tracking-widest font-semibold text-zinc-400 mb-2">Beta Codes</p>
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 space-y-3">
+          <p className="text-sm text-zinc-500">Enter a beta code to unlock early features.</p>
+          <div className="flex gap-2">
+            <input
+              id="beta-code-input"
+              placeholder="Enter beta code"
+              className="flex-1 px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white outline-none focus:border-blue-400"
+            />
+            <button
+              onClick={() => {
+                const val = (document.getElementById('beta-code-input') as HTMLInputElement)?.value?.trim();
+                if (!val) return;
+                toast.success('Beta code submitted!');
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition"
+              aria-label="Redeem beta code"
+            >
+              Redeem
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Danger Zone */}
       <section>
         <p className="text-xs uppercase tracking-widest font-semibold text-zinc-400 mb-2">Danger Zone</p>
