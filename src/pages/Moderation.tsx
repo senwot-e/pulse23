@@ -109,7 +109,8 @@ export default function Moderation() {
   const fetchLockdown = useCallback(async () => {
     setLockdownLoading(true);
     const { data } = await supabase.from('app_settings').select('value').eq('key', 'lockdown').single();
-    setLockdown(data?.value?.enabled || false);
+    const val = data?.value as any;
+    setLockdown(val?.enabled || false);
     setLockdownLoading(false);
   }, []);
 
