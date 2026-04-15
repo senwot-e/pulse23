@@ -1,16 +1,17 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, Bell, MessageSquare, Sparkles, Bookmark, User, Settings, LogOut, Moon, Sun } from 'lucide-react';
+import { Home, Search, Bell, MessageSquare, Sparkles, Bookmark, User, Settings, LogOut, Moon, Sun, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import PulseLogo from './PulseLogo';
+import BanScreen from './BanScreen';
 
 function getAvatar(username?: string, avatarUrl?: string | null) {
   return avatarUrl || `https://api.dicebear.com/7.x/thumbs/svg?seed=${username || 'anon'}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
 }
 
 export default function AppSidebar() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, isBanned, banInfo, isModerator, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [unreadNotifs, setUnreadNotifs] = useState(0);
@@ -22,7 +23,6 @@ export default function AppSidebar() {
     const fetchCounts = async () => {
       const { count: nc } = await supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('recipient_id', user.id).eq('read', false);
       setUnreadNotifs(nc || 0);
-      // Unread DMs
       const { data: convos } = await supabase.from('dm_conversations').select('id').or(`participant_one.eq.${user.id},participant_two.eq.${user.id}`);
       if (convos && convos.length > 0) {
         const ids = convos.map(c => c.id);
@@ -37,9 +37,12 @@ export default function AppSidebar() {
     return () => { supabase.removeChannel(channel); };
   }, [user]);
 
-  const isActive = (path: string) => {
-    return location.pathname === path || location.pathname.startsWith(path + '/');
-  };
+  // If banned, show ban screen instead of sidebar
+  if (isBanned && banInfo) {
+    return <BanScreen username={profile?.username || 'user'} reason={banInfo.reason} />;
+  }
+
+  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');
 
   const toggleDark = () => {
     const next = !isDark;
@@ -59,19 +62,18 @@ export default function AppSidebar() {
     { path: '/notifications', label: 'Notifications', icon: Bell, badge: unreadNotifs, authOnly: false },
     { path: '/dm', label: 'Messages', icon: MessageSquare, badge: unreadDMs, authOnly: false },
     { path: '/ai', label: 'Nemo', icon: Sparkles, pill: 'NEW' },
-    
+    ...(isModerator || isAdmin ? [{ path: '/moderation', label: 'Moderation', icon: Shield }] : []),
     { path: '/bookmarks', label: 'Bookmarks', icon: Bookmark, authOnly: true },
     { path: `/profile/${profile?.username || ''}`, label: 'Profile', icon: User, authOnly: true },
     { path: '/settings', label: 'Settings', icon: Settings, authOnly: true },
   ];
 
-  const filteredItems = navItems.filter(item => !item.authOnly || user);
+  const filteredItems = navItems.filter(item => !(item as any).authOnly || user);
 
   return (
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-[260px] h-screen fixed left-0 top-0 z-40 bg-white dark:bg-[#111118] border-r border-[#E4E7EC] dark:border-[#1F1F2E] shadow-[2px_0_12px_rgba(0,0,0,0.04)] dark:shadow-none">
-        {/* Logo section */}
         <div className="px-5 pt-6 pb-4">
           <Link to="/feed" className="flex items-center gap-2.5">
             <PulseLogo size={28} />
@@ -83,7 +85,6 @@ export default function AppSidebar() {
           <div className="h-px bg-zinc-100 dark:bg-zinc-800 mt-4" />
         </div>
 
-        {/* Nav items */}
         <nav className="px-3 flex-1 overflow-y-auto">
           <div className="flex flex-col gap-1">
             {filteredItems.map(item => {
@@ -100,14 +101,14 @@ export default function AppSidebar() {
                 >
                   <item.icon className={`w-5 h-5 shrink-0 ${active ? 'text-blue-600' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300'}`} strokeWidth={1.5} />
                   <span className="text-sm font-medium">{item.label}</span>
-                  {item.badge && item.badge > 0 && (
+                  {(item as any).badge > 0 && (
                     <span className="ml-auto bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
-                      {item.badge > 99 ? '99+' : item.badge}
+                      {(item as any).badge > 99 ? '99+' : (item as any).badge}
                     </span>
                   )}
-                  {item.pill && (
+                  {(item as any).pill && (
                     <span className="ml-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      {item.pill}
+                      {(item as any).pill}
                     </span>
                   )}
                 </Link>
@@ -143,7 +144,6 @@ export default function AppSidebar() {
         {/* Bottom section (logged in) */}
         {user && profile && (
           <div className="border-t border-zinc-100 dark:border-zinc-800 px-3 py-4">
-            {/* User identity */}
             <div className="flex items-center gap-2.5">
               <img
                 src={getAvatar(profile.username, profile.avatar_url)}
@@ -157,20 +157,6 @@ export default function AppSidebar() {
               <button onClick={toggleDark} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors mr-1" aria-label="Toggle dark mode">
                 {isDark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-zinc-600 fill-current" />}
               </button>
-              <button onClick={handleSignOut} className="text-zinc-400 hover:text-red-500 transition-colors" aria-label="Sign out">
-                <LogOut className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <img
-                src={getAvatar(profile.username, profile.avatar_url)}
-                alt={profile.username}
-                className="w-[38px] h-[38px] rounded-full object-cover ring-2 ring-blue-100 dark:ring-zinc-700"
-              />
-              <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-semibold text-zinc-900 dark:text-white truncate max-w-[120px]">{profile.display_name || profile.username}</p>
-                <p className="text-[11px] text-zinc-400 truncate">@{profile.username}</p>
-              </div>
               <button onClick={handleSignOut} className="text-zinc-400 hover:text-red-500 transition-colors" aria-label="Sign out">
                 <LogOut className="w-4 h-4" />
               </button>
