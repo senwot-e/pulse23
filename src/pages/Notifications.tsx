@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
-import { Heart, MessageCircle, UserPlus, CheckCheck } from 'lucide-react';
+import { Heart, MessageCircle, UserPlus, CheckCheck, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import Changelog from '@/components/Changelog';
 
 function getAvatar(username: string, url?: string | null) {
   return url || `https://api.dicebear.com/7.x/thumbs/svg?seed=${username}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
@@ -14,6 +15,7 @@ export default function Notifications() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showChangelog, setShowChangelog] = useState(false);
 
   useEffect(() => { document.title = 'Pulse 23 · Notifications'; }, []);
 
@@ -86,12 +88,20 @@ export default function Notifications() {
     <div className="max-w-2xl mx-auto px-4 py-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Notifications</h1>
-        {notifications.some(n => !n.read) && (
-          <button onClick={markAllRead} className="flex items-center gap-1 text-sm text-blue-600 hover:underline" aria-label="Mark all read">
-            <CheckCheck className="w-4 h-4" /> Mark all read
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowChangelog(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 rounded-full text-xs font-medium hover:bg-blue-100 dark:hover:bg-blue-950/50 transition" aria-label="View changelog">
+            <BookOpen className="w-3.5 h-3.5" /> What's New
           </button>
-        )}
+          {notifications.some(n => !n.read) && (
+            <button onClick={markAllRead} className="flex items-center gap-1 text-sm text-blue-600 hover:underline" aria-label="Mark all read">
+              <CheckCheck className="w-4 h-4" /> Mark all read
+            </button>
+          )}
+        </div>
       </div>
+
+      {showChangelog && <Changelog onClose={() => setShowChangelog(false)} />}
+
       {notifications.length === 0 ? (
         <div className="text-center py-16">
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="mx-auto mb-4">
