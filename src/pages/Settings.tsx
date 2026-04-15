@@ -72,6 +72,12 @@ export default function Settings() {
       setShowOnline((profile as any).show_online_status ?? true);
       setAllowAI((profile as any).allow_ai_suggestions ?? true);
     }
+    // Fetch redeemed beta codes
+    if (user) {
+      supabase.from('beta_codes_redeemed').select('code').eq('user_id', user.id).then(({ data }) => {
+        setRedeemedCodes((data || []).map(d => d.code));
+      });
+    }
   }, [user, profile, navigate]);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
