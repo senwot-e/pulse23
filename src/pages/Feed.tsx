@@ -187,7 +187,7 @@ export default function Feed() {
             <p className="text-sm text-zinc-400 mt-1">Be the first to post!</p>
           </div>
         ) : (
-          posts.map(post => (
+          posts.filter(post => !bannedIds.has(post.user_id)).map(post => (
             <div key={post.id}>
               <SocialPostCard
                 post={post}
