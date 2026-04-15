@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Camera, Heart, MessageCircle, UserPlus, Mail, Trash2 } from 'lucide-react';
+import { Loader2, Camera, Heart, MessageCircle, UserPlus, Mail, Trash2, Ticket } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 function getAvatar(username: string, url?: string | null) {
@@ -11,6 +11,9 @@ function getAvatar(username: string, url?: string | null) {
 
 export default function Settings() {
   const { user, profile, signOut, refreshProfile } = useAuth();
+  const [betaCode, setBetaCode] = useState('');
+  const [betaLoading, setBetaLoading] = useState(false);
+  const [redeemedCodes, setRedeemedCodes] = useState<string[]>([]);
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const [displayName, setDisplayName] = useState('');
