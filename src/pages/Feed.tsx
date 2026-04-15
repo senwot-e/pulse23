@@ -230,7 +230,7 @@ export default function Feed() {
               <Users className="w-4 h-4 text-blue-600" /> Who to follow
             </h3>
             <div className="space-y-3">
-              {suggestedPeople.filter(p => p.id !== user?.id).slice(0, 4).map(p => (
+              {suggestedPeople.filter(p => p.id !== user?.id && !bannedIds.has(p.id)).slice(0, 4).map(p => (
                 <div key={p.id} className="flex items-center gap-2">
                   <Link to={`/profile/${p.username}`}>
                     <img src={getAvatar(p.username, p.avatar_url)} alt={p.username} className="w-9 h-9 rounded-full" />
