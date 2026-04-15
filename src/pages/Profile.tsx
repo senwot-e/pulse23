@@ -7,8 +7,9 @@ import CommentSection from '@/components/CommentSection';
 import MonkeyPanel from '@/components/MonkeyPanel';
 import VerifiedBadge from '@/components/VerifiedBadge';
 import UserBadges from '@/components/UserBadges';
+import ReportUserModal from '@/components/ReportUserModal';
 import { ProfileSkeleton, PostSkeleton } from '@/components/Skeletons';
-import { Loader2, Edit2, Zap } from 'lucide-react';
+import { Loader2, Edit2, Zap, Flag } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 function getAvatar(username: string, url?: string | null) {
@@ -32,6 +33,7 @@ export default function Profile() {
   const [editBio, setEditBio] = useState('');
   const [saving, setSaving] = useState(false);
   const [likes, setLikes] = useState<Set<string>>(new Set());
+  const [showReport, setShowReport] = useState(false);
 
   const isOwn = user?.id === profile?.id;
 
