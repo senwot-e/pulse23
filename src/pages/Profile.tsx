@@ -131,9 +131,14 @@ export default function Profile() {
               <Edit2 className="w-4 h-4" /> Edit profile
             </button>
           ) : user ? (
-            <button onClick={toggleFollow} className={`px-4 py-2 rounded-full text-sm font-medium transition mt-12 ${isFollowing ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300' : 'bg-blue-600 text-white'}`} aria-label={isFollowing ? 'Unfollow' : 'Follow'}>
-              {isFollowing ? 'Following' : 'Follow'}
-            </button>
+            <div className="flex items-center gap-2 mt-12">
+              <button onClick={toggleFollow} className={`px-4 py-2 rounded-full text-sm font-medium transition ${isFollowing ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300' : 'bg-blue-600 text-white'}`} aria-label={isFollowing ? 'Unfollow' : 'Follow'}>
+                {isFollowing ? 'Following' : 'Follow'}
+              </button>
+              <button onClick={() => setShowReport(true)} className="p-2 rounded-full text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition" aria-label="Report user">
+                <Flag className="w-4 h-4" />
+              </button>
+            </div>
           ) : null}
         </div>
         <div className="mt-3">
