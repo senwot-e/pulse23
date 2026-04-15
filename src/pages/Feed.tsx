@@ -29,9 +29,17 @@ export default function Feed() {
   const [trending, setTrending] = useState<{ tag: string; count: number }[]>([]);
   const [suggestedPeople, setSuggestedPeople] = useState<any[]>([]);
   const [followingSet, setFollowingSet] = useState<Set<string>>(new Set());
+  const [bannedIds, setBannedIds] = useState<Set<string>>(new Set());
   const observerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { document.title = 'Pulse 23 · Feed'; }, []);
+
+  useEffect(() => {
+    // Fetch banned user IDs
+    supabase.from('bans').select('user_id').is('unbanned_at', null).then(({ data }) => {
+      setBannedIds(new Set((data || []).map(b => b.user_id)));
+    });
+  }, []);
 
   useEffect(() => {
     const checkTroll = async () => {
