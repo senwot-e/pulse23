@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { ImagePlus, Sparkles, Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { ImagePlus, Sparkles, Loader2, Lock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -17,7 +17,15 @@ export default function PostComposer({ onPost }: PostComposerProps) {
   const [enhanced, setEnhanced] = useState(false);
   const [originalDraft, setOriginalDraft] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [lockdown, setLockdown] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    supabase.from('app_settings').select('value').eq('key', 'lockdown').single().then(({ data }) => {
+      const val = data?.value as any;
+      setLockdown(val?.enabled || false);
+    });
+  }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -80,6 +88,15 @@ export default function PostComposer({ onPost }: PostComposerProps) {
     return (
       <div className="bg-card rounded-xl border shadow-sm p-6 mb-4 text-center">
         <p className="text-muted-foreground">Sign in to share what's on your mind</p>
+      </div>
+    );
+  }
+
+  if (lockdown) {
+    return (
+      <div className="bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-800 p-4 mb-4 flex items-center gap-3">
+        <Lock className="w-5 h-5 text-amber-500 shrink-0" />
+        <p className="text-sm text-amber-700 dark:text-amber-400">Pulse 23 is currently in lockdown. Posting is temporarily disabled.</p>
       </div>
     );
   }

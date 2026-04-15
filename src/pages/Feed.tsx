@@ -29,9 +29,17 @@ export default function Feed() {
   const [trending, setTrending] = useState<{ tag: string; count: number }[]>([]);
   const [suggestedPeople, setSuggestedPeople] = useState<any[]>([]);
   const [followingSet, setFollowingSet] = useState<Set<string>>(new Set());
+  const [bannedIds, setBannedIds] = useState<Set<string>>(new Set());
   const observerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { document.title = 'Pulse 23 · Feed'; }, []);
+
+  useEffect(() => {
+    // Fetch banned user IDs
+    supabase.from('bans').select('user_id').is('unbanned_at', null).then(({ data }) => {
+      setBannedIds(new Set((data || []).map(b => b.user_id)));
+    });
+  }, []);
 
   useEffect(() => {
     const checkTroll = async () => {
@@ -179,7 +187,7 @@ export default function Feed() {
             <p className="text-sm text-zinc-400 mt-1">Be the first to post!</p>
           </div>
         ) : (
-          posts.map(post => (
+          posts.filter(post => !bannedIds.has(post.user_id)).map(post => (
             <div key={post.id}>
               <SocialPostCard
                 post={post}
@@ -222,7 +230,7 @@ export default function Feed() {
               <Users className="w-4 h-4 text-blue-600" /> Who to follow
             </h3>
             <div className="space-y-3">
-              {suggestedPeople.filter(p => p.id !== user?.id).slice(0, 4).map(p => (
+              {suggestedPeople.filter(p => p.id !== user?.id && !bannedIds.has(p.id)).slice(0, 4).map(p => (
                 <div key={p.id} className="flex items-center gap-2">
                   <Link to={`/profile/${p.username}`}>
                     <img src={getAvatar(p.username, p.avatar_url)} alt={p.username} className="w-9 h-9 rounded-full" />

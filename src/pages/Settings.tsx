@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Camera, Heart, MessageCircle, UserPlus, Mail, Trash2 } from 'lucide-react';
+import { Loader2, Camera, Heart, MessageCircle, UserPlus, Mail, Trash2, Ticket } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 function getAvatar(username: string, url?: string | null) {
@@ -11,6 +11,9 @@ function getAvatar(username: string, url?: string | null) {
 
 export default function Settings() {
   const { user, profile, signOut, refreshProfile } = useAuth();
+  const [betaCode, setBetaCode] = useState('');
+  const [betaLoading, setBetaLoading] = useState(false);
+  const [redeemedCodes, setRedeemedCodes] = useState<string[]>([]);
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const [displayName, setDisplayName] = useState('');
@@ -68,6 +71,12 @@ export default function Settings() {
       setIsPrivate((profile as any).is_private || false);
       setShowOnline((profile as any).show_online_status ?? true);
       setAllowAI((profile as any).allow_ai_suggestions ?? true);
+    }
+    // Fetch redeemed beta codes
+    if (user) {
+      supabase.from('beta_codes_redeemed').select('code').eq('user_id', user.id).then(({ data }) => {
+        setRedeemedCodes((data || []).map(d => d.code));
+      });
     }
   }, [user, profile, navigate]);
 
@@ -343,22 +352,47 @@ export default function Settings() {
         <p className="text-xs uppercase tracking-widest font-semibold text-zinc-400 mb-2">Beta Codes</p>
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 space-y-3">
           <p className="text-sm text-zinc-500">Enter a beta code to unlock early features.</p>
+          {redeemedCodes.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {redeemedCodes.map(code => (
+                <span key={code} className="px-2.5 py-1 bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full flex items-center gap-1">
+                  <Ticket className="w-3 h-3" /> {code}
+                </span>
+              ))}
+            </div>
+          )}
           <div className="flex gap-2">
             <input
-              id="beta-code-input"
+              value={betaCode}
+              onChange={e => setBetaCode(e.target.value)}
               placeholder="Enter beta code"
               className="flex-1 px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white outline-none focus:border-blue-400"
             />
             <button
-              onClick={() => {
-                const val = (document.getElementById('beta-code-input') as HTMLInputElement)?.value?.trim();
-                if (!val) return;
-                toast.success('Beta code submitted!');
+              onClick={async () => {
+                if (!betaCode.trim() || !user) return;
+                const code = betaCode.trim().toLowerCase();
+                if (redeemedCodes.includes(code)) { toast.error('Already redeemed'); return; }
+                setBetaLoading(true);
+                try {
+                  const { error } = await supabase.from('beta_codes_redeemed').insert({ user_id: user.id, code });
+                  if (error) {
+                    if (error.code === '23505') toast.error('Already redeemed');
+                    else throw error;
+                  } else {
+                    setRedeemedCodes(prev => [...prev, code]);
+                    setBetaCode('');
+                    toast.success('Beta code redeemed!');
+                    await refreshProfile();
+                  }
+                } catch { toast.error('Failed to redeem code'); }
+                setBetaLoading(false);
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition"
+              disabled={betaLoading || !betaCode.trim()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50 flex items-center gap-1"
               aria-label="Redeem beta code"
             >
-              Redeem
+              {betaLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Redeem'}
             </button>
           </div>
         </div>

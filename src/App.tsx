@@ -15,6 +15,7 @@ import PostDetail from '@/pages/PostDetail';
 import Settings from '@/pages/Settings';
 import Bookmarks from '@/pages/Bookmarks';
 import ResetPassword from '@/pages/ResetPassword';
+import Moderation from '@/pages/Moderation';
 import NotFound from '@/pages/NotFound';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
@@ -54,6 +55,7 @@ const App = () => (
         <Route path="/post/:id" element={<AppLayout><PostDetail /></AppLayout>} />
         <Route path="/settings" element={<AppLayout><ProtectedRoute><Settings /></ProtectedRoute></AppLayout>} />
         <Route path="/bookmarks" element={<AppLayout><ProtectedRoute><Bookmarks /></ProtectedRoute></AppLayout>} />
+        <Route path="/moderation" element={<AppLayout><Moderation /></AppLayout>} />
         <Route path="*" element={<AppLayout><NotFound /></AppLayout>} />
       </Routes>
     </BrowserRouter>
