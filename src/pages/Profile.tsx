@@ -190,6 +190,10 @@ export default function Profile() {
           </div>
         </div>
       )}
+
+      {showReport && !isOwn && profile && (
+        <ReportUserModal targetUserId={profile.id} targetUsername={profile.username} onClose={() => setShowReport(false)} />
+      )}
     </div>
   );
 }
