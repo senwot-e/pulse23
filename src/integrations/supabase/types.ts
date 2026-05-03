@@ -102,6 +102,36 @@ export type Database = {
           },
         ]
       }
+      api_keys: {
+        Row: {
+          created_at: string
+          id: string
+          last_used_at: string | null
+          name: string | null
+          revoked_at: string | null
+          token_hash: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          name?: string | null
+          revoked_at?: string | null
+          token_hash: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          name?: string | null
+          revoked_at?: string | null
+          token_hash?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string
@@ -271,6 +301,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string | null
+          flagged: boolean
           id: string
           post_id: string
           user_id: string
@@ -278,6 +309,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string | null
+          flagged?: boolean
           id?: string
           post_id: string
           user_id: string
@@ -285,6 +317,7 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string | null
+          flagged?: boolean
           id?: string
           post_id?: string
           user_id?: string
@@ -546,27 +579,33 @@ export type Database = {
           comments_count: number | null
           content: string
           created_at: string | null
+          flagged: boolean
           id: string
           image_url: string | null
           likes_count: number | null
+          shares_count: number
           user_id: string
         }
         Insert: {
           comments_count?: number | null
           content: string
           created_at?: string | null
+          flagged?: boolean
           id?: string
           image_url?: string | null
           likes_count?: number | null
+          shares_count?: number
           user_id: string
         }
         Update: {
           comments_count?: number | null
           content?: string
           created_at?: string | null
+          flagged?: boolean
           id?: string
           image_url?: string | null
           likes_count?: number | null
+          shares_count?: number
           user_id?: string
         }
         Relationships: [
@@ -624,6 +663,27 @@ export type Database = {
           show_online_status?: boolean | null
           username?: string
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      shares: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
         }
         Relationships: []
       }
