@@ -116,7 +116,7 @@ export default function Auth() {
         <div className="w-full max-w-md">
           <div className="flex items-center gap-2 mb-6 lg:hidden">
             <PulseLogo size={28} />
-            <h2 className="text-2xl font-bold" style={{ background: 'linear-gradient(to right, #2563EB, #7C3AED)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Pulse 23</h2>
+            <h2 className="text-2xl font-display font-bold text-primary">Pulse 23</h2>
           </div>
 
           {/* Pill toggle */}
