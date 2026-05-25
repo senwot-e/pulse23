@@ -89,7 +89,7 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex">
       {/* Left panel */}
-      <div className="hidden lg:flex flex-1 items-center justify-center p-12" style={{ background: 'linear-gradient(135deg, #1D4ED8 0%, #4F46E5 50%, #7C3AED 100%)' }}>
+      <div className="hidden lg:flex flex-1 items-center justify-center p-12 bg-primary">
         <div className="text-center">
           <div className="flex items-center justify-center gap-3 mb-3">
             <PulseLogo size={48} />
@@ -116,7 +116,7 @@ export default function Auth() {
         <div className="w-full max-w-md">
           <div className="flex items-center gap-2 mb-6 lg:hidden">
             <PulseLogo size={28} />
-            <h2 className="text-2xl font-bold" style={{ background: 'linear-gradient(to right, #2563EB, #7C3AED)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Pulse 23</h2>
+            <h2 className="text-2xl font-display font-bold text-primary">Pulse 23</h2>
           </div>
 
           {/* Pill toggle */}

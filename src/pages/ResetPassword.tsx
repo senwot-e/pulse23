@@ -50,7 +50,7 @@ export default function ResetPassword() {
       <div className="w-full max-w-md">
         <div className="flex items-center gap-2 mb-6 justify-center">
           <PulseLogo size={28} />
-          <h2 className="text-2xl font-bold" style={{ background: 'linear-gradient(to right, #2563EB, #7C3AED)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Pulse 23</h2>
+          <h2 className="text-2xl font-display font-bold text-primary">Pulse 23</h2>
         </div>
 
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">

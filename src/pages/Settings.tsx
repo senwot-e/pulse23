@@ -203,7 +203,7 @@ export default function Settings() {
   const Toggle = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) => (
     <button
       onClick={() => onChange(!checked)}
-      className={`relative w-10 h-[22px] rounded-full transition-colors ${checked ? 'bg-gradient-to-r from-blue-500 to-purple-500' : 'bg-zinc-200 dark:bg-zinc-700'}`}
+      className={`relative w-10 h-[22px] rounded-full transition-colors ${checked ? 'bg-primary' : 'bg-muted'}`}
       aria-label="Toggle"
     >
       <div className={`absolute top-0.5 w-[18px] h-[18px] rounded-full bg-white shadow transition-transform duration-200 ${checked ? 'translate-x-[20px]' : 'translate-x-0.5'}`} />

@@ -55,7 +55,7 @@ export default function Notifications() {
   const iconBg = (type: string) => {
     if (type === 'like') return 'bg-rose-500';
     if (type === 'comment') return 'bg-blue-500';
-    return 'bg-purple-500';
+    return 'bg-primary';
   };
 
   const icon = (type: string) => {

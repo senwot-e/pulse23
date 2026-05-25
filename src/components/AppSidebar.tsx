@@ -77,7 +77,7 @@ export default function AppSidebar() {
         <div className="px-5 pt-6 pb-4">
           <Link to="/feed" className="flex items-center gap-2.5">
             <PulseLogo size={28} />
-            <span className="font-bold text-xl" style={{ background: 'linear-gradient(to right, #2563EB, #7C3AED)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <span className="font-display font-bold text-xl text-primary">
               Pulse 23
             </span>
           </Link>
@@ -93,21 +93,21 @@ export default function AppSidebar() {
                 <Link
                   key={item.label}
                   to={item.path}
-                  className={`flex items-center gap-3 px-3.5 py-[11px] rounded-[14px] transition-all duration-150 group relative ${
+                  className={`flex items-center gap-3 px-3.5 py-[11px] rounded-lg transition-all duration-150 group relative ${
                     active
-                      ? 'bg-gradient-to-r from-[#EFF6FF] to-[#F5F3FF] dark:bg-[rgba(99,102,241,0.12)] dark:from-transparent dark:to-transparent border-l-[3px] border-blue-600 text-blue-600 font-semibold'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-[rgba(255,255,255,0.05)] hover:text-zinc-800 dark:hover:text-zinc-100 border-l-[3px] border-transparent'
+                      ? 'bg-primary/10 border-l-[3px] border-primary text-primary font-semibold'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground border-l-[3px] border-transparent'
                   }`}
                 >
-                  <item.icon className={`w-5 h-5 shrink-0 ${active ? 'text-blue-600' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300'}`} strokeWidth={1.5} />
+                  <item.icon className={`w-5 h-5 shrink-0 ${active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} strokeWidth={1.5} />
                   <span className="text-sm font-medium">{item.label}</span>
                   {(item as any).badge > 0 && (
-                    <span className="ml-auto bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                    <span className="ml-auto bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
                       {(item as any).badge > 99 ? '99+' : (item as any).badge}
                     </span>
                   )}
                   {(item as any).pill && (
-                    <span className="ml-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    <span className="ml-auto bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
                       {(item as any).pill}
                     </span>
                   )}
@@ -127,14 +127,14 @@ export default function AppSidebar() {
                 {isDark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-zinc-600 fill-current" />}
               </button>
             </div>
-            <div className="bg-gradient-to-br from-[#EFF6FF] to-[#F5F3FF] dark:from-[rgba(99,102,241,0.08)] dark:to-[rgba(99,102,241,0.08)] border border-[#BFDBFE] dark:border-[rgba(99,102,241,0.2)] rounded-2xl p-4 text-center">
+            <div className="bg-muted border border-border rounded-xl p-4 text-center">
               <PulseLogo size={24} />
-              <p className="text-sm font-semibold text-zinc-900 dark:text-white mt-2">Join Pulse 23</p>
-              <p className="text-xs text-zinc-500 mt-1">Connect, share, and discover.</p>
-              <Link to="/auth?tab=signup" className="block w-full mt-3 h-[38px] leading-[38px] text-sm font-semibold text-white rounded-xl" style={{ background: 'linear-gradient(to right, #2563EB, #7C3AED)' }}>
+              <p className="text-sm font-semibold text-foreground mt-2 font-display">Join Pulse 23</p>
+              <p className="text-xs text-muted-foreground mt-1">Connect, share, and discover.</p>
+              <Link to="/auth?tab=signup" className="block w-full mt-3 h-[38px] leading-[38px] text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 rounded-lg transition-colors">
                 Sign Up
               </Link>
-              <Link to="/auth?tab=signin" className="block w-full mt-2 h-[38px] leading-[38px] text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl">
+              <Link to="/auth?tab=signin" className="block w-full mt-2 h-[38px] leading-[38px] text-sm font-medium text-foreground bg-background border border-border hover:bg-muted rounded-lg transition-colors">
                 Sign In
               </Link>
             </div>
