@@ -93,21 +93,21 @@ export default function AppSidebar() {
                 <Link
                   key={item.label}
                   to={item.path}
-                  className={`flex items-center gap-3 px-3.5 py-[11px] rounded-[14px] transition-all duration-150 group relative ${
+                  className={`flex items-center gap-3 px-3.5 py-[11px] rounded-lg transition-all duration-150 group relative ${
                     active
-                      ? 'bg-gradient-to-r from-[#EFF6FF] to-[#F5F3FF] dark:bg-[rgba(99,102,241,0.12)] dark:from-transparent dark:to-transparent border-l-[3px] border-blue-600 text-blue-600 font-semibold'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-[rgba(255,255,255,0.05)] hover:text-zinc-800 dark:hover:text-zinc-100 border-l-[3px] border-transparent'
+                      ? 'bg-primary/10 border-l-[3px] border-primary text-primary font-semibold'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground border-l-[3px] border-transparent'
                   }`}
                 >
-                  <item.icon className={`w-5 h-5 shrink-0 ${active ? 'text-blue-600' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300'}`} strokeWidth={1.5} />
+                  <item.icon className={`w-5 h-5 shrink-0 ${active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} strokeWidth={1.5} />
                   <span className="text-sm font-medium">{item.label}</span>
                   {(item as any).badge > 0 && (
-                    <span className="ml-auto bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                    <span className="ml-auto bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
                       {(item as any).badge > 99 ? '99+' : (item as any).badge}
                     </span>
                   )}
                   {(item as any).pill && (
-                    <span className="ml-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    <span className="ml-auto bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
                       {(item as any).pill}
                     </span>
                   )}
