@@ -77,7 +77,7 @@ export default function AppSidebar() {
         <div className="px-5 pt-6 pb-4">
           <Link to="/feed" className="flex items-center gap-2.5">
             <PulseLogo size={28} />
-            <span className="font-bold text-xl" style={{ background: 'linear-gradient(to right, #2563EB, #7C3AED)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <span className="font-display font-bold text-xl text-primary">
               Pulse 23
             </span>
           </Link>
