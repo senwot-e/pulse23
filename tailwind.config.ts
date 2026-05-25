@@ -15,7 +15,9 @@ export default {
         heading: ['Poppins', 'system-ui', 'sans-serif'],
         body: ['Roboto', 'system-ui', 'sans-serif'],
         sans: ['Roboto', 'system-ui', 'sans-serif'],
-        display: ['Poppins', 'system-ui', 'sans-serif'],
+        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+        display: ['Limelight', '"Playfair Display"', 'serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",

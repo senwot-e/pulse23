@@ -77,8 +77,8 @@ export default function AppSidebar() {
         <div className="px-5 pt-6 pb-4">
           <Link to="/feed" className="flex items-center gap-2.5">
             <PulseLogo size={28} />
-            <span className="font-display font-bold text-xl text-primary">
-              Pulse 23
+            <span className="font-serif italic font-bold text-2xl text-foreground tracking-tight">
+              Pulse <span className="text-primary not-italic">23</span>
             </span>
           </Link>
           <p className="text-[11px] text-zinc-400 mt-1">Your world, in motion.</p>
