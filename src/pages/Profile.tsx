@@ -122,7 +122,7 @@ export default function Profile() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-4">
       {/* Cover */}
-      <div className="h-32 rounded-t-2xl" style={{ background: 'linear-gradient(135deg, #2563EB, #7C3AED)' }} />
+      <div className="h-32 rounded-t-2xl bg-primary" />
       <div className="bg-white dark:bg-zinc-900 rounded-b-2xl border border-t-0 border-zinc-200 dark:border-zinc-800 px-4 pb-4">
         <div className="flex items-end justify-between -mt-10">
           <img src={getAvatar(profile.username, profile.avatar_url)} alt={profile.username} className="w-20 h-20 rounded-full border-4 border-white dark:border-zinc-900 object-cover" />
