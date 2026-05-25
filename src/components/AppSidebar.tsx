@@ -127,14 +127,14 @@ export default function AppSidebar() {
                 {isDark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-zinc-600 fill-current" />}
               </button>
             </div>
-            <div className="bg-gradient-to-br from-[#EFF6FF] to-[#F5F3FF] dark:from-[rgba(99,102,241,0.08)] dark:to-[rgba(99,102,241,0.08)] border border-[#BFDBFE] dark:border-[rgba(99,102,241,0.2)] rounded-2xl p-4 text-center">
+            <div className="bg-muted border border-border rounded-xl p-4 text-center">
               <PulseLogo size={24} />
-              <p className="text-sm font-semibold text-zinc-900 dark:text-white mt-2">Join Pulse 23</p>
-              <p className="text-xs text-zinc-500 mt-1">Connect, share, and discover.</p>
-              <Link to="/auth?tab=signup" className="block w-full mt-3 h-[38px] leading-[38px] text-sm font-semibold text-white rounded-xl" style={{ background: 'linear-gradient(to right, #2563EB, #7C3AED)' }}>
+              <p className="text-sm font-semibold text-foreground mt-2 font-display">Join Pulse 23</p>
+              <p className="text-xs text-muted-foreground mt-1">Connect, share, and discover.</p>
+              <Link to="/auth?tab=signup" className="block w-full mt-3 h-[38px] leading-[38px] text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 rounded-lg transition-colors">
                 Sign Up
               </Link>
-              <Link to="/auth?tab=signin" className="block w-full mt-2 h-[38px] leading-[38px] text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl">
+              <Link to="/auth?tab=signin" className="block w-full mt-2 h-[38px] leading-[38px] text-sm font-medium text-foreground bg-background border border-border hover:bg-muted rounded-lg transition-colors">
                 Sign In
               </Link>
             </div>
